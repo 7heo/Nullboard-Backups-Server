@@ -1,0 +1,5 @@
+__pycache__
+*.json
+*.nbx
+*.db
+board-deleted
