@@ -26,14 +26,37 @@ Configuration
 -------------
 
 The configuration happens directly in the source of `nbbkps.py`, at the
-beginning of the file. Once these options are properly set (make sure you set
-the backup directory in a place that isn't world-readable, especially not in
-the `www` root), you can start administering the server.
+beginning of the file. Once these options are properly set (make sure you
+**change the secrets** and set the backup directory in a place that isn't
+world-readable, especially not in the `www` root), you can start administering
+the server.
 
 Administration
 --------------
 
-TBD.
+To administer the server, you can use the following endpoints under the
+`/admin` endpoint with parameters `x-www-form-urlencoded`:
+
+- `/admin/new-token`: To create a new token. The required parameters are
+		      `login`, `password` and `user`. The `user` parameter is
+		      the name of the user to create a token for. It must be
+                      unique.
+- `/admin/get-token`: To get an existing token for a known user name. The
+                      required parameters are `login`, `password` and `user`.
+		      The `user` parameter is the name of the user for whom to
+                      get the token. It must exist in the token list.
+- `/admin/list-tokens`: To get the entire list of tokens, without user names.
+                        The required parameters are `login` and `password`.
+- `/admin/del-token`: To delete an existing token. The required parameters are
+		      `login`, `password`, `user` and `token`. The `user`
+		      parameter is the name of the user for whom to delete the
+                      token, and the `token` parameter is the token to delete.
+		      The both the `user` and the `token` must exist in the
+		      token list, and `token` paramter *must* match the listed
+                      token for the `user` passed in parameters.
+
+*Note: All the `/admin` endpoints require the `login` and `password`
+parameters. The must always match what is configured in the server script.*
 
 Backups structure
 -----------------
@@ -51,8 +74,8 @@ Connecting to the Nullboard.io instance
 To connect to the Nullboard.io instance of your choice, follow the steps
 described in the [Official Nullboard backups page for local
 backups](https://nullboard.io/backups#setup), but use the endpoints of your
-nbbkps instance in the `URL` field, and any token you want (tokens aren't
-implemented yet) in the `Access token` field.
+nbbkps instance in the `URL` field, and the token you created via the admin
+endpoint in the `Access token` field.
 
 FAQ
 ---
@@ -65,7 +88,8 @@ for such a feature, so it might happen in the future.
 
 ### Can it support multiple users?
 
-No, it is not implemented yet. In a future version, this will be possible.
+Yes! Different users have to use different tokens, and they will write their
+backups in different directories.
 
 ### Is this secure?
 
@@ -73,10 +97,9 @@ There was some effort to write this software in a way that wouldn't encourage
 abuse (especially wrt user input), but there was no effort made, yet, to ensure
 the absence of exlpoits/vulnerabilities.
 
-In addition, this software allows the users (anyone, currently, as tokens
-aren't implemented!) to upload arbitrary content (but not with arbitrary file
-names) to your server, so it is best to place the backup directory **outside**
-of the `www` root.
+In addition, this software allows the users (anyone with a valid token) to
+upload arbitrary content (but not with arbitrary file names) to your server, so
+it is best to place the backup directory **outside** of the `www` root.
 
 In short, this can be relatively safely deployed in your LAN, but I would
 personally audit it and report & correct bugs before deploying it publicly.
