@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Simple server for Nullboard"""
 
-# TODO:
+# TODO:  # pylint: disable=fixme
 # - Handle request data if the mime type is correctly set to JSON
 
 from json import loads  # Necessary to get the revision number

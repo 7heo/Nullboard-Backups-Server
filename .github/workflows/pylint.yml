@@ -1,0 +1,41 @@
+name: Pylint
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.8", "3.9", "3.10"]
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v3
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pylint
+        pip install flask
+    - name: Analysing the code with pylint
+      run: |
+        : Validation script
+        trap '[ $? -eq 1 ] && echo ">>> Failure"' EXIT
+        echo ">>> Running block-wide pylint disable detection (0 allowed)"
+        grep '^ *#[^#]*pylint: disable=' $(git ls-files '*.py') | wc -l \
+        | xargs printf '>>> %s occurrences detected.\n'
+        grep '^ *#[^#]*pylint: disable=' $(git ls-files '*.py') | wc -l \
+        | grep -q '^0$'
+        echo ">>> Success"
+        echo ">>> Running line-wide pylint disable detection (3 allowed)"
+        grep '#.*pylint: disable=' $(git ls-files '*.py') | wc -l \
+        | xargs printf '>>> %s occurrences detected.\n'
+        grep '#.*pylint: disable=' $(git ls-files '*.py') | wc -l \
+        | xargs -I_ echo "4>_" | bc | grep -q '^1$'
+        echo ">>> Success"
+        echo ">>> Running pylint"
+        pylint $(git ls-files '*.py')
+        echo ">>> Success"
+        echo ">>> All done."
