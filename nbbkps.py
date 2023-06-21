@@ -22,11 +22,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 BACKUP_PATH = getenv("NBBKP_PATH", "./nbbkp")  # Default path for backup files
-ENC = getenv("NBBKP_ENC", 'UTF-8')  # Default encoding for backup files
-BIND_ADDR = getenv("NBBKP_BIND_ADDR", '127.0.0.1')
+ENC = getenv("NBBKP_ENC", "UTF-8")  # Default encoding for backup files
+BIND_ADDR = getenv("NBBKP_BIND_ADDR", "127.0.0.1")
 BIND_PORT = int(getenv("NBBKP_BIND_PORT", "5000"))
-TOKEN_FILE = getenv("NBBKP_TOKEN_FILE", 'tokens.db')
-ADMIN_PWD = getenv("NBBKP_ADMIN_PWD", 'YourVerySecurePassWd')  # For accessing the admin area.
+TOKEN_FILE = getenv("NBBKP_TOKEN_FILE", "tokens.db")
+ADMIN_PWD = getenv("NBBKP_ADMIN_PWD", "YourVerySecurePassWd")  # For accessing the admin area.
 
 APP = Flask(__name__)
 APP.logger = create_logger(APP)
@@ -53,7 +53,7 @@ def base36encodehex(hexnr):
   except ValueError:
     APP.logger.info("%s isn't a hexadecimal number", hexnr)
 
-  alphabet, base36 = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', ''
+  alphabet, base36 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ", ''
 
   while number:
     number, i = divmod(number, 36)
@@ -92,7 +92,7 @@ def search_user(user, file):
 
 def format_token(token):
   """Format a token according to a syntax"""
-  if not re_match('^([0-9A-Z]{4}-){4}$', f"{token}-"):
+  if not re_match("^([0-9A-Z]{4}-){4}$", f"{token}-"):
     raise ValueError(f"Token '{token}' does not conform to token format")
   return token
 
@@ -104,10 +104,10 @@ def validate_token(token):
 
 def new_token(data):
   """Writes a new token to the on-disk list and return it"""
-  if 'user' not in data:
+  if "user" not in data:
     APP.logger.info("No 'user' parameter passed in request")
     return "No 'user' parameter passed in request", 400
-  user = data['user']
+  user = data["user"]
   if search_user(user, pathjoin(BACKUP_PATH, TOKEN_FILE)):
     APP.logger.info("User '%s' already exists", user)
     return f"User {user} already exists", 403
@@ -124,10 +124,10 @@ def new_token(data):
 
 def get_token(data):
   """Get a token from a user name"""
-  if 'user' not in data:
+  if "user" not in data:
     APP.logger.info("No 'user' parameter passed in request")
     return "No 'user' parameter passed in request", 400
-  user = data['user']
+  user = data["user"]
   if found := search_user(user, pathjoin(BACKUP_PATH, TOKEN_FILE)):
     APP.logger.info("User '%s' found, returning token", user)
     return found.split(" ")[0]
@@ -147,11 +147,11 @@ def list_tokens(_):
 
 def del_token(data):
   """Delete a token if the name matches"""
-  if 'user' not in data or 'token' not in data:
+  if "user" not in data or "token" not in data:
     APP.logger.info("No 'user' or 'token' parameter passed in request")
     return "No 'user' or 'token' parameter passed in request", 400
-  user = data['user']
-  token = data['token']
+  user = data["user"]
+  token = data["token"]
   line = search_token(token, pathjoin(BACKUP_PATH, TOKEN_FILE))
   if not line:
     APP.logger.info("Token '%s' not found, returning 404", token)
@@ -173,24 +173,24 @@ def del_token(data):
   return f"No matching record found for user '{user}' and token '{token}'", 403
 
 
-@APP.route("/admin/<string:cmd>", methods=['POST'])
+@APP.route("/admin/<string:cmd>", methods=["POST"])
 def admin(cmd):
   """Route for POST /admin/<command>"""
-  valid_commands = {'new-token': new_token,
-                    'get-token': get_token,
-                    'list-tokens': list_tokens,
-                    'del-token': del_token}
+  valid_commands = {"new-token": new_token,
+                    "get-token": get_token,
+                    "list-tokens": list_tokens,
+                    "del-token": del_token}
 
   resp = Response("true")
   resp.headers["Access-Control-Allow-Origin"] = "*"
 
-  if 'login' not in request.form or 'password' not in request.form:
+  if "login" not in request.form or "password" not in request.form:
     return format_flask_response(resp, ("Access Denied", 401))
 
-  login = request.form['login']
-  password = request.form['password']
+  login = request.form["login"]
+  password = request.form["password"]
 
-  if login != 'admin' or password != ADMIN_PWD:
+  if login != "admin" or password != ADMIN_PWD:
     return format_flask_response(resp, ("Access Denied", 401))
 
   if cmd not in valid_commands:
@@ -199,24 +199,24 @@ def admin(cmd):
   return format_flask_response(resp, valid_commands[cmd](request.form))
 
 
-@APP.route("/config", methods=['OPTIONS'])
+@APP.route("/config", methods=["OPTIONS"])
 def options_config():
   """Route for OPTIONS /config"""
   resp = Response("")
-  resp.headers['allow'] = "PUT"
+  resp.headers["allow"] = "PUT"
   resp.headers["Access-Control-Allow-Origin"] = "*"
   resp.headers["Access-Control-Allow-Headers"] = "X-Access-Token"
   resp.headers["Access-Control-Allow-Methods"] = "PUT"
   return resp
 
 
-@APP.route("/config", methods=['PUT'])
+@APP.route("/config", methods=["PUT"])
 def put_config():
   """Route for PUT /config"""
   resp = Response("true")
   resp.headers["Access-Control-Allow-Origin"] = "*"
 
-  access_token = format_token(request.headers['X-Access-Token'])
+  access_token = format_token(request.headers["X-Access-Token"])
   if not validate_token(access_token):
     resp = format_flask_response(resp, ("Access Denied", 401))
   else:
@@ -224,32 +224,32 @@ def put_config():
     if not isdir(work_path):
       makedirs(work_path)
 
-    file_path = pathjoin(work_path, 'app-config.json')
-    if 'conf' in request.form:
+    file_path = pathjoin(work_path, "app-config.json")
+    if "conf" in request.form:
       with open(file_path, 'w', encoding=ENC) as fhdlr:
-        fhdlr.write(request.form['conf'])
+        fhdlr.write(request.form["conf"])
       APP.logger.info("Wrote conf to %s", file_path)
   return resp
 
 
-@APP.route("/board/<int:bid>", methods=['OPTIONS'])
+@APP.route("/board/<int:bid>", methods=["OPTIONS"])
 def options_board(*_, **__):
   """Route for OPTIONS /board/<board_id>"""
   resp = Response("")
-  resp.headers['allow'] = "PUT, DELETE"
+  resp.headers["allow"] = "PUT, DELETE"
   resp.headers["Access-Control-Allow-Origin"] = "*"
   resp.headers["Access-Control-Allow-Headers"] = "X-Access-Token"
   resp.headers["Access-Control-Allow-Methods"] = "PUT, DELETE"
   return resp
 
 
-@APP.route("/board/<int:bid>", methods=['PUT'])
+@APP.route("/board/<int:bid>", methods=["PUT"])
 def put_board(bid):
   """Route for PUT /board/<board_id>"""
   resp = Response("true")
   resp.headers["Access-Control-Allow-Origin"] = "*"
 
-  access_token = format_token(request.headers['X-Access-Token'])
+  access_token = format_token(request.headers["X-Access-Token"])
   if not validate_token(access_token):
     resp = format_flask_response(resp, ("Access Denied", 401))
   else:
@@ -258,14 +258,14 @@ def put_board(bid):
       makedirs(work_path)
 
     try:
-      revnr = int(loads(request.form['data'])['revision'])
+      revnr = int(loads(request.form["data"])["revision"])
     except (KeyError, ValueError):
       APP.logger.info("Incorrectly formatted request data.")
       return format_flask_response(resp, ("Incorrectly formatted request data",
                                           400))
 
-    file_paths = {'data': pathjoin(work_path, f"rev-{revnr:08d}.nbx"),
-                  'meta': pathjoin(work_path, 'meta.json')}
+    file_paths = {"data": pathjoin(work_path, f"rev-{revnr:08d}.nbx"),
+                  "meta": pathjoin(work_path, "meta.json")}
     for key, file_path in file_paths.items():
       if key in request.form:
         with open(file_path, 'w', encoding=ENC) as fhdlr:
@@ -274,13 +274,13 @@ def put_board(bid):
   return resp
 
 
-@APP.route("/board/<int:bid>", methods=['DELETE'])
+@APP.route("/board/<int:bid>", methods=["DELETE"])
 def delete_board(bid):
   """Route for DELETE /board/<board_id>"""
   resp = Response("true")
   resp.headers["Access-Control-Allow-Origin"] = "*"
 
-  access_token = format_token(request.headers['X-Access-Token'])
+  access_token = format_token(request.headers["X-Access-Token"])
   if not validate_token(access_token):
     resp = format_flask_response(resp, ("Access Denied", 401))
   else:
@@ -288,7 +288,7 @@ def delete_board(bid):
     if not isdir(work_path):
       makedirs(work_path)
 
-    file_path = pathjoin(work_path, 'board-deleted')
+    file_path = pathjoin(work_path, "board-deleted")
     with open(file_path, 'w', encoding=ENC) as fhdlr:
       fhdlr.write("true")
     APP.logger.info("Deleted board %d", bid)
