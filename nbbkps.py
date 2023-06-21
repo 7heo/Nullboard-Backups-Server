@@ -24,7 +24,7 @@ load_dotenv()
 BACKUP_PATH = getenv("NBBKP_PATH", "./nbbkp")  # Default path for backup files
 ENC = getenv("NBBKP_ENC", 'UTF-8')  # Default encoding for backup files
 BIND_ADDR = getenv("NBBKP_BIND_ADDR", '127.0.0.1')
-BIND_PORT = int(getenv("NBBKP_BIND_PORT", 5000))
+BIND_PORT = int(getenv("NBBKP_BIND_PORT", "5000"))
 TOKEN_FILE = getenv("NBBKP_TOKEN_FILE", 'tokens.db')
 ADMIN_PWD = getenv("NBBKP_ADMIN_PWD", 'YourVerySecurePassWd')  # For accessing the admin area.
 
