@@ -13,11 +13,11 @@ from os.path import join as pathjoin
 from re import match as re_match
 from secrets import token_hex
 
+from dotenv import load_dotenv
 from flask import Flask
 from flask import Response
 from flask import request
 from flask.logging import create_logger
-from dotenv import load_dotenv
 
 load_dotenv()
 
