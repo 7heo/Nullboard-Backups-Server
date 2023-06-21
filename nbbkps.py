@@ -14,6 +14,9 @@ from secrets import token_hex
 
 from flask import Flask, Response, request
 from flask.logging import create_logger
+import dotenv
+
+dotenv.load_dotenv()
 
 BACKUP_PATH = os.getenv("NBBKP_PATH", "./nbbkp")  # Default path for backup files
 ENC = os.getenv("NBBKP_ENC", 'UTF-8')  # Default encoding for backup files
