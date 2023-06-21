@@ -5,24 +5,28 @@
 # - Handle request data if the mime type is correctly set to JSON
 
 from json import loads  # Necessary to get the revision number
+from os import getenv
 from os import makedirs
 from os.path import isdir
 from os.path import isfile
 from os.path import join as pathjoin
 from re import match as re_match
 from secrets import token_hex
+
 from flask import Flask
 from flask import Response
 from flask import request
 from flask.logging import create_logger
+from dotenv import load_dotenv
 
+load_dotenv()
 
-BACKUP_PATH = "./nbbkp"  # Default path for backup files
-ENC = 'UTF-8'  # Default encoding for backup files
-BIND_ADDR = '127.0.0.1'
-BIND_PORT = 5000
-TOKEN_FILE = 'tokens.db'
-ADMIN_PWD = 'YourVerySecurePassWd'  # For accessing the admin area.
+BACKUP_PATH = getenv("NBBKP_PATH", "./nbbkp")  # Default path for backup files
+ENC = getenv("NBBKP_ENC", 'UTF-8')  # Default encoding for backup files
+BIND_ADDR = getenv("NBBKP_BIND_ADDR", '127.0.0.1')
+BIND_PORT = int(getenv("NBBKP_BIND_PORT", 5000))
+TOKEN_FILE = getenv("NBBKP_TOKEN_FILE", 'tokens.db')
+ADMIN_PWD = getenv("NBBKP_ADMIN_PWD", 'YourVerySecurePassWd')  # For accessing the admin area.
 
 APP = Flask(__name__)
 APP.logger = create_logger(APP)
